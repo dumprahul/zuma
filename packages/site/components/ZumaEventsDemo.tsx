@@ -359,7 +359,7 @@ export const ZumaEventsDemo = () => {
           <select
             className={inputClass}
             value={zumaEvents.selectedEventId ?? ""}
-            onChange={(e) => zumaEvents.selectEvent(e.target.value ? parseInt(e.target.value) : undefined)}
+            onChange={(e) => zumaEvents.selectEvent(e.target.value ? parseInt(e.target.value) : 0)}
           >
             <option value="">Choose an event...</option>
             {Array.from({ length: Number(zumaEvents.nextEventId || 0) }, (_, i) => (
@@ -487,7 +487,18 @@ function printProperty(name: string, value: unknown) {
   } else if (value instanceof Error) {
     displayValue = value.message;
   } else {
-    displayValue = JSON.stringify(value);
+    // Handle BigInt and other complex types safely
+    try {
+      displayValue = JSON.stringify(value, (key, val) => {
+        if (typeof val === "bigint") {
+          return val.toString();
+        }
+        return val;
+      });
+    } catch {
+      // Fallback for objects that can't be serialized
+      displayValue = String(value);
+    }
   }
   return (
     <p className="text-black">
