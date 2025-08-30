@@ -57,6 +57,20 @@ export type AttendanceForm = {
   skill: string;
 };
 
+export type CreatedEvent = {
+  id: number;
+  name: string;
+  minAge: number;
+  minSkill: number;
+};
+
+export type AttendanceResult = {
+  eventId: number;
+  age: number;
+  skill: number;
+  accepted: boolean;
+};
+
 type ZumaEventsInfoType = {
   abi: typeof ZumaEventsABI.abi;
   address?: `0x${string}`;
@@ -149,6 +163,10 @@ export const useZumaEvents = (parameters: {
   const [isRefreshingEvents, setIsRefreshingEvents] = useState<boolean>(false);
   
   const [message, setMessage] = useState<string>("");
+
+  // Event tracking states
+  const [lastCreatedEvent, setLastCreatedEvent] = useState<CreatedEvent | undefined>(undefined);
+  const [lastAttendanceResult, setLastAttendanceResult] = useState<AttendanceResult | undefined>(undefined);
 
   // Form states
   const [eventForm, setEventForm] = useState<EventForm>({
@@ -283,7 +301,32 @@ export const useZumaEvents = (parameters: {
           return;
         }
 
-        setMessage(`Event created successfully! Event ID: ${receipt?.logs[0]?.topics[1]}`);
+        // Extract event ID from the event log
+        const eventCreatedLog = receipt?.logs.find(log => 
+          log.topics[0] === contract.interface.getEventTopic('EventCreated')
+        );
+        
+        let eventId = 0;
+        if (eventCreatedLog && eventCreatedLog.topics[1]) {
+          eventId = parseInt(eventCreatedLog.topics[1], 16);
+        } else {
+          // Fallback: get the next event ID - 1
+          const nextId = await contract.nextEventId();
+          eventId = Number(nextId) - 1;
+        }
+
+        setMessage(`Event created successfully! Event ID: ${eventId}`);
+        
+        // Track the created event
+        setLastCreatedEvent({
+          id: eventId,
+          name: thisEventForm.name,
+          minAge: parseInt(thisEventForm.minAge),
+          minSkill: parseInt(thisEventForm.minSkill)
+        });
+        
+        // Clear confirmation after 10 seconds
+        setTimeout(() => setLastCreatedEvent(undefined), 10000);
         
         // Reset form
         setEventForm({
@@ -415,7 +458,29 @@ export const useZumaEvents = (parameters: {
           return;
         }
 
-        setMessage("Attendance submitted successfully!");
+        // Check if attendance was accepted by getting the accepted count
+        const acceptedCountBefore = await contract.getAcceptedCount(parseInt(thisAttendanceForm.eventId));
+        
+        // Wait a bit for the transaction to be processed
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const acceptedCountAfter = await contract.getAcceptedCount(parseInt(thisAttendanceForm.eventId));
+        
+        // If the count increased, attendance was accepted
+        const wasAccepted = acceptedCountAfter !== acceptedCountBefore;
+        
+        setMessage(wasAccepted ? "Attendance submitted successfully!" : "Attendance submitted but requirements not met.");
+        
+        // Track attendance result
+        setLastAttendanceResult({
+          eventId: parseInt(thisAttendanceForm.eventId),
+          age: parseInt(thisAttendanceForm.age),
+          skill: parseInt(thisAttendanceForm.skill),
+          accepted: wasAccepted
+        });
+        
+        // Clear confirmation after 10 seconds
+        setTimeout(() => setLastAttendanceResult(undefined), 10000);
         
         // Reset form
         setAttendanceForm({
@@ -716,7 +781,25 @@ export const useZumaEvents = (parameters: {
     setSelectedEventData(undefined);
     setAcceptedCountHandle(undefined);
     setClearAcceptedCount(undefined);
-  }, []);
+    
+    // If we have a valid event ID, fetch its data
+    if (eventId !== undefined && zumaEvents.address && ethersReadonlyProvider) {
+      const fetchEventData = async () => {
+        try {
+          const contract = new ethers.Contract(
+            zumaEvents.address,
+            zumaEvents.abi,
+            ethersReadonlyProvider
+          );
+          const eventData = await contract.events(eventId);
+          setSelectedEventData(eventData);
+        } catch (error) {
+          console.error("Failed to fetch event data:", error);
+        }
+      };
+      fetchEventData();
+    }
+  }, [zumaEvents.address, zumaEvents.abi, ethersReadonlyProvider]);
 
   return {
     // Contract info
@@ -730,6 +813,10 @@ export const useZumaEvents = (parameters: {
     acceptedCountHandle,
     clearAcceptedCount,
     isCountDecrypted,
+    
+    // Event tracking
+    lastCreatedEvent,
+    lastAttendanceResult,
     
     // Form states
     eventForm,
