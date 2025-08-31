@@ -4,6 +4,6 @@
   Command: 'npm run genabi'
 */
 export const ZumaEventsAddresses = { 
-  "11155111": { address: "0x0EA851F9660Fe81cf5c963278d2e0A60a98e7c84", chainId: 11155111, chainName: "sepolia" },
-  "31337": { address: "0xDfF2Ae61D8fdc475116A8398C9Da994c112fE544", chainId: 31337, chainName: "hardhat" },
+  "11155111": { address: "0xa439BbabCb49EA18072262ce8bd79a1455361d48", chainId: 11155111, chainName: "sepolia" },
+  "31337": { address: "0x0f1e88DBbCEe8E2FCc6C97E9747413aaee557447", chainId: 31337, chainName: "hardhat" },
 };

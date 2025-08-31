@@ -175,6 +175,11 @@ export const ZumaEventsABI = {
           "type": "bool"
         },
         {
+          "internalType": "address",
+          "name": "organizer",
+          "type": "address"
+        },
+        {
           "internalType": "euint64",
           "name": "minAge",
           "type": "bytes32"
@@ -205,6 +210,156 @@ export const ZumaEventsABI = {
       "outputs": [
         {
           "internalType": "euint64",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllEvents",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "dateTime",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "location",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isOpen",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "organizer",
+              "type": "address"
+            },
+            {
+              "internalType": "euint64",
+              "name": "minAge",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "euint64",
+              "name": "minSkill",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "euint64",
+              "name": "acceptedCount",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct ZumaEvents.EventData[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "getOwnerEvents",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "dateTime",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "location",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isOpen",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "organizer",
+              "type": "address"
+            },
+            {
+              "internalType": "euint64",
+              "name": "minAge",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "euint64",
+              "name": "minSkill",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "euint64",
+              "name": "acceptedCount",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct ZumaEvents.EventData[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserAccepted",
+      "outputs": [
+        {
+          "internalType": "ebool",
           "name": "",
           "type": "bytes32"
         }
