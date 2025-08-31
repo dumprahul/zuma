@@ -12,7 +12,6 @@ export default function EventsPage() {
   const {
     provider,
     chainId,
-    accounts,
     isConnected,
     connect,
     ethersSigner,
@@ -231,7 +230,7 @@ export default function EventsPage() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold text-green-300">
-                  Event "{zumaEvents.lastCreatedEvent.name}" has been successfully registered!
+                  Event &ldquo;{zumaEvents.lastCreatedEvent.name}&rdquo; has been successfully registered!
                 </h3>
                 <div className="mt-2 text-sm text-green-200">
                   <p><strong>Event ID:</strong> {zumaEvents.lastCreatedEvent.id}</p>
