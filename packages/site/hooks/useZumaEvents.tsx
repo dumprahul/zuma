@@ -294,7 +294,7 @@ export const useZumaEvents = (parameters: {
 
         setMessage(`Wait for tx:${tx.hash}...`);
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
         if (isStale()) {
           setMessage("Ignore event creation");
@@ -302,18 +302,9 @@ export const useZumaEvents = (parameters: {
         }
 
         // Extract event ID from the event log
-        const eventCreatedLog = receipt?.logs.find(log => 
-          log.topics[0] === contract.interface.getEventTopic('EventCreated')
-        );
-        
-        let eventId = 0;
-        if (eventCreatedLog && eventCreatedLog.topics[1]) {
-          eventId = parseInt(eventCreatedLog.topics[1], 16);
-        } else {
-          // Fallback: get the next event ID - 1
-          const nextId = await contract.nextEventId();
-          eventId = Number(nextId) - 1;
-        }
+        // Get the next event ID - 1 (since the event was just created)
+        const nextId = await contract.nextEventId();
+        const eventId = Number(nextId) - 1;
 
         setMessage(`Event created successfully! Event ID: ${eventId}`);
         
@@ -451,7 +442,7 @@ export const useZumaEvents = (parameters: {
 
         setMessage(`Wait for tx:${tx.hash}...`);
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
         if (isStale()) {
           setMessage("Ignore attendance");
@@ -684,7 +675,7 @@ export const useZumaEvents = (parameters: {
 
         setMessage(`Wait for tx:${tx.hash}...`);
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
         if (isStale()) {
           setMessage("Ignore event closing");
@@ -734,6 +725,8 @@ export const useZumaEvents = (parameters: {
 
     const run = async () => {
       try {
+        if (!zumaEvents.address) return;
+        
         const contract = new ethers.Contract(
           zumaEvents.address,
           zumaEvents.abi,
@@ -786,6 +779,8 @@ export const useZumaEvents = (parameters: {
     if (eventId !== undefined && zumaEvents.address && ethersReadonlyProvider) {
       const fetchEventData = async () => {
         try {
+          if (!zumaEvents.address) return;
+          
           const contract = new ethers.Contract(
             zumaEvents.address,
             zumaEvents.abi,
