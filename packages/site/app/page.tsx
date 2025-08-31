@@ -2,8 +2,30 @@
 
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import Link from "next/link";
+import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
+import { useState, useEffect } from "react";
 
 export default function LandingPage() {
+  const { isConnected, accounts, connect } = useMetaMaskEthersSigner();
+  const [walletAddress, setWalletAddress] = useState<string>("");
+
+  useEffect(() => {
+    if (isConnected && accounts && accounts.length > 0) {
+      const address = accounts[0];
+      setWalletAddress(`${address.slice(0, 6)}...${address.slice(-4)}`);
+    } else {
+      setWalletAddress("");
+    }
+  }, [isConnected, accounts]);
+
+  const handleConnect = async () => {
+    try {
+      await connect();
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background overlay for better text readability */}
@@ -79,6 +101,25 @@ export default function LandingPage() {
                   </div>
                 </ShimmerButton>
               </Link>
+
+              {/* Connect Wallet Button */}
+              <ShimmerButton
+                shimmerColor={isConnected ? "#10b981" : "#8b5cf6"}
+                background={isConnected ? "rgba(16, 185, 129, 0.2)" : "rgba(139, 92, 246, 0.2)"}
+                borderRadius="50px"
+                shimmerDuration="2s"
+                className="glass text-white border-white/30 hover:border-white/50 transition-all duration-300"
+                onClick={handleConnect}
+              >
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span className="font-semibold">
+                    {isConnected ? walletAddress : "Connect"}
+                  </span>
+                </div>
+              </ShimmerButton>
             </div>
           </div>
 
