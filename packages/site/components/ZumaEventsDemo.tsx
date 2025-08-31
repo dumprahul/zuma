@@ -5,6 +5,7 @@ import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
 import { useMetaMaskEthersSigner } from "../hooks/metamask/useMetaMaskEthersSigner";
 import { useZumaEvents } from "@/hooks/useZumaEvents";
 import { errorNotDeployed } from "./ErrorNotDeployed";
+import Link from "next/link";
 
 /*
  * Main ZumaEvents React component with event management functionality
@@ -103,17 +104,33 @@ export const ZumaEventsDemo = () => {
 
   return (
     <div className="grid w-full gap-4">
-      <div className="col-span-full mx-20 bg-black text-white">
-        <p className="font-semibold text-3xl m-5">
-          Zuma Events - FHE Event Management -{" "}
-          <span className="font-mono font-normal text-gray-400">
-            ZumaEvents.sol (Updated)
-          </span>
-        </p>
+      <div className="col-span-full mx-20 glass-dark text-white rounded-xl">
+        <div className="flex justify-between items-center m-5">
+          <p className="font-semibold text-3xl">
+            Zuma Events - FHE Event Management -{" "}
+            <span className="font-mono font-normal text-gray-300">
+              ZumaEvents.sol (Updated)
+            </span>
+          </p>
+          <div className="flex space-x-4">
+            <Link 
+              href="/"
+              className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              href="/create"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              + Create Event
+            </Link>
+          </div>
+        </div>
       </div>
 
-      <div className="col-span-full mx-20 mt-4 px-5 pb-4 rounded-lg bg-white border-2 border-black">
-        <p className={titleClass}>Chain Infos</p>
+      <div className="col-span-full mx-20 mt-4 px-5 pb-4 rounded-lg glass-dark border border-white/20">
+        <p className={titleClass + " text-white"}>Chain Infos</p>
         {printProperty("ChainId", chainId)}
         {printProperty(
           "Metamask accounts",
@@ -135,8 +152,8 @@ export const ZumaEventsDemo = () => {
 
       <div className="col-span-full mx-20">
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-lg bg-white border-2 border-black pb-4 px-4">
-            <p className={titleClass}>FHEVM instance</p>
+          <div className="rounded-lg glass-dark border border-white/20 pb-4 px-4">
+            <p className={titleClass + " text-white"}>FHEVM instance</p>
             {printProperty(
               "Fhevm Instance",
               fhevmInstance ? "OK" : "undefined"
@@ -144,8 +161,8 @@ export const ZumaEventsDemo = () => {
             {printProperty("Fhevm Status", fhevmStatus)}
             {printProperty("Fhevm Error", fhevmError ?? "No Error")}
           </div>
-          <div className="rounded-lg bg-white border-2 border-black pb-4 px-4">
-            <p className={titleClass}>Status</p>
+          <div className="rounded-lg glass-dark border border-white/20 pb-4 px-4">
+            <p className={titleClass + " text-white"}>Status</p>
             {printProperty("isCreatingEvent", zumaEvents.isCreatingEvent)}
             {printProperty("isAttending", zumaEvents.isAttending)}
             {printProperty("isGettingCount", zumaEvents.isGettingCount)}
@@ -159,11 +176,11 @@ export const ZumaEventsDemo = () => {
       </div>
 
       {/* Event Creation Form */}
-      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg bg-white border-2 border-black">
-        <p className={titleClass}>Create New Event</p>
+      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg glass-dark border border-white/20">
+        <p className={titleClass + " text-white"}>Create New Event</p>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Event Name
             </label>
             <input
@@ -175,7 +192,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Description
             </label>
             <input
@@ -187,7 +204,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Date & Time
             </label>
             <input
@@ -199,7 +216,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Location
             </label>
             <input
@@ -211,7 +228,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Minimum Age
             </label>
             <input
@@ -223,7 +240,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Minimum Skill
             </label>
             <input
@@ -249,11 +266,11 @@ export const ZumaEventsDemo = () => {
       </div>
 
       {/* Event Attendance Form */}
-      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg bg-white border-2 border-black">
-        <p className={titleClass}>Attend Event</p>
+      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg glass-dark border border-white/20">
+        <p className={titleClass + " text-white"}>Attend Event</p>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Event ID
             </label>
             <input
@@ -265,7 +282,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Your Age
             </label>
             <input
@@ -277,7 +294,7 @@ export const ZumaEventsDemo = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Your Skill Level
             </label>
             <input
@@ -338,8 +355,8 @@ export const ZumaEventsDemo = () => {
       </div>
 
       {/* Event Information Display */}
-      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg bg-white border-2 border-black">
-        <p className={titleClass}>Event Information</p>
+      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg glass-dark border border-white/20">
+        <p className={titleClass + " text-white"}>Event Information</p>
         {printProperty("Next Event ID", zumaEvents.nextEventId)}
         {printProperty("Selected Event ID", zumaEvents.selectedEventId)}
         {printProperty("Accepted Count Handle", zumaEvents.acceptedCountHandle)}
@@ -350,10 +367,10 @@ export const ZumaEventsDemo = () => {
       </div>
 
       {/* All Events Display */}
-      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg bg-white border-2 border-black">
-        <p className={titleClass}>All Events</p>
+      <div className="col-span-full mx-20 px-4 pb-4 rounded-lg glass-dark border border-white/20">
+        <p className={titleClass + " text-white"}>All Events</p>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             Select Event to View Details:
           </label>
           <select
@@ -371,28 +388,28 @@ export const ZumaEventsDemo = () => {
         </div>
         
         {zumaEvents.selectedEventData && (
-          <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4 p-4 bg-white/10 rounded-lg border border-white/20">
             <div>
-              <p className="font-semibold text-gray-700">Event Details:</p>
-              <p><span className="font-medium">Name:</span> {zumaEvents.selectedEventData.name}</p>
-              <p><span className="font-medium">Description:</span> {zumaEvents.selectedEventData.description}</p>
-              <p><span className="font-medium">Date & Time:</span> {zumaEvents.selectedEventData.dateTime}</p>
-              <p><span className="font-medium">Location:</span> {zumaEvents.selectedEventData.location}</p>
+              <p className="font-semibold text-white">Event Details:</p>
+              <p className="text-gray-200"><span className="font-medium">Name:</span> {zumaEvents.selectedEventData.name}</p>
+              <p className="text-gray-200"><span className="font-medium">Description:</span> {zumaEvents.selectedEventData.description}</p>
+              <p className="text-gray-200"><span className="font-medium">Date & Time:</span> {zumaEvents.selectedEventData.dateTime}</p>
+              <p className="text-gray-200"><span className="font-medium">Location:</span> {zumaEvents.selectedEventData.location}</p>
             </div>
             <div>
-              <p className="font-semibold text-gray-700">Requirements & Status:</p>
-              <p><span className="font-medium">Minimum Age:</span> {zumaEvents.selectedEventData.minAge}</p>
-              <p><span className="font-medium">Minimum Skill:</span> {zumaEvents.selectedEventData.minSkill}</p>
-              <p><span className="font-medium">Status:</span> 
+              <p className="font-semibold text-white">Requirements & Status:</p>
+              <p className="text-gray-200"><span className="font-medium">Minimum Age:</span> {zumaEvents.selectedEventData.minAge}</p>
+              <p className="text-gray-200"><span className="font-medium">Minimum Skill:</span> {zumaEvents.selectedEventData.minSkill}</p>
+              <p className="text-gray-200"><span className="font-medium">Status:</span> 
                 <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
                   zumaEvents.selectedEventData.isOpen 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-green-500/30 text-green-300 border border-green-400/30' 
+                    : 'bg-red-500/30 text-red-300 border border-red-400/30'
                 }`}>
                   {zumaEvents.selectedEventData.isOpen ? 'Open' : 'Closed'}
                 </span>
               </p>
-              <p><span className="font-medium">Accepted Count:</span> {zumaEvents.selectedEventData.acceptedCount}</p>
+              <p className="text-gray-200"><span className="font-medium">Accepted Count:</span> {zumaEvents.selectedEventData.acceptedCount}</p>
             </div>
           </div>
         )}
@@ -400,7 +417,7 @@ export const ZumaEventsDemo = () => {
 
       {/* Event Registration Confirmation */}
       {zumaEvents.lastCreatedEvent && (
-        <div className="col-span-full mx-20 px-4 py-3 rounded-lg bg-green-50 border-2 border-green-200">
+        <div className="col-span-full mx-20 px-4 py-3 rounded-lg bg-green-500/20 border-2 border-green-400/30">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -423,8 +440,8 @@ export const ZumaEventsDemo = () => {
       {zumaEvents.lastAttendanceResult && (
         <div className={`col-span-full mx-20 px-4 py-3 rounded-lg border-2 ${
           zumaEvents.lastAttendanceResult.accepted 
-            ? 'bg-green-50 border-green-200' 
-            : 'bg-yellow-50 border-yellow-200'
+            ? 'bg-green-500/20 border-green-400/30' 
+            : 'bg-yellow-500/20 border-yellow-400/30'
         }`}>
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -441,8 +458,8 @@ export const ZumaEventsDemo = () => {
             <div className="ml-3">
               <p className={`text-sm font-medium ${
                 zumaEvents.lastAttendanceResult.accepted 
-                  ? 'text-green-800' 
-                  : 'text-yellow-800'
+                  ? 'text-green-300' 
+                  : 'text-yellow-300'
               }`}>
                 {zumaEvents.lastAttendanceResult.accepted 
                   ? 'Attendance Accepted!' 
@@ -450,8 +467,8 @@ export const ZumaEventsDemo = () => {
               </p>
               <p className={`text-sm mt-1 ${
                 zumaEvents.lastAttendanceResult.accepted 
-                  ? 'text-green-700' 
-                  : 'text-yellow-700'
+                  ? 'text-green-200' 
+                  : 'text-yellow-200'
               }`}>
                 {zumaEvents.lastAttendanceResult.accepted 
                   ? `You have been successfully registered for Event #${zumaEvents.lastAttendanceResult.eventId}`
@@ -464,7 +481,7 @@ export const ZumaEventsDemo = () => {
       )}
 
       {/* Message Display */}
-      <div className="col-span-full mx-20 p-4 rounded-lg bg-white border-2 border-black">
+      <div className="col-span-full mx-20 p-4 rounded-lg glass-dark border border-white/20">
         {printProperty("Message", zumaEvents.message)}
       </div>
     </div>
@@ -501,9 +518,9 @@ function printProperty(name: string, value: unknown) {
     }
   }
   return (
-    <p className="text-black">
+    <p className="text-white">
       {name}:{" "}
-      <span className="font-mono font-semibold text-black">{displayValue}</span>
+      <span className="font-mono font-semibold text-white">{displayValue}</span>
     </p>
   );
 }
@@ -511,9 +528,9 @@ function printProperty(name: string, value: unknown) {
 function printBooleanProperty(name: string, value: boolean) {
   if (value) {
     return (
-      <p className="text-black">
+      <p className="text-white">
         {name}:{" "}
-        <span className="font-mono font-semibold text-green-500">true</span>
+        <span className="font-mono font-semibold text-green-400">true</span>
       </p>
     );
   }
@@ -521,7 +538,7 @@ function printBooleanProperty(name: string, value: boolean) {
   return (
     <p className="text-black">
       {name}:{" "}
-      <span className="font-mono font-semibold text-red-500">false</span>
+              <span className="font-semibold text-red-400">false</span>
     </p>
   );
 }
