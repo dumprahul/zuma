@@ -82,6 +82,7 @@ describe("ZumaEvents", function () {
     expect(eventData.dateTime).to.eq(eventDateTime);
     expect(eventData.location).to.eq(eventLocation);
     expect(eventData.isOpen).to.eq(true);
+    expect(eventData.organizer).to.eq(signers.organizer.address);
   });
 
   it("should allow attendee with sufficient age and skill to attend", async function () {
@@ -133,6 +134,7 @@ describe("ZumaEvents", function () {
     const encryptedAcceptedCount = await zumaEventsContract.getAcceptedCount(eventId);
     
     // Decrypt the accepted count (should be 1 since Alice meets requirements)
+    // Now Alice should be able to decrypt since FHE.allow was called for her
     const clearAcceptedCount = await fhevm.userDecryptEuint(
       FhevmType.euint64,
       encryptedAcceptedCount,
@@ -192,6 +194,7 @@ describe("ZumaEvents", function () {
     const encryptedAcceptedCount = await zumaEventsContract.getAcceptedCount(eventId);
     
     // Decrypt the accepted count (should be 0 since Bob doesn't meet age requirement)
+    // Now Bob should be able to decrypt since FHE.allow was called for him
     const clearAcceptedCount = await fhevm.userDecryptEuint(
       FhevmType.euint64,
       encryptedAcceptedCount,
@@ -251,6 +254,7 @@ describe("ZumaEvents", function () {
     const encryptedAcceptedCount = await zumaEventsContract.getAcceptedCount(eventId);
     
     // Decrypt the accepted count (should be 0 since Charlie doesn't meet skill requirement)
+    // Now Charlie should be able to decrypt since FHE.allow was called for him
     const clearAcceptedCount = await fhevm.userDecryptEuint(
       FhevmType.euint64,
       encryptedAcceptedCount,
@@ -389,6 +393,33 @@ describe("ZumaEvents", function () {
     expect(eventData.isOpen).to.eq(false);
   });
 
+  it("should prevent non-organizer from closing event", async function () {
+    // Create an event
+    await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Protected Event",
+        "Event that only organizer can close",
+        "2024-12-25 09:00:00",
+        "Test Location",
+        18, // minAge
+        1   // minSkill
+      );
+
+    const eventId = 0;
+
+    // Try to close event with different signer (should fail)
+    await expect(
+      zumaEventsContract
+        .connect(signers.alice)
+        .closeEvent(eventId)
+    ).to.be.revertedWith("Only organizer can close");
+
+    // Verify event is still open
+    const eventData = await zumaEventsContract.events(eventId);
+    expect(eventData.isOpen).to.eq(true);
+  });
+
   it("should prevent attendance to closed events", async function () {
     // Create and close an event
     await zumaEventsContract
@@ -431,5 +462,122 @@ describe("ZumaEvents", function () {
           encryptedAliceSkill.inputProof
         )
     ).to.be.revertedWith("Event is closed");
+  });
+
+  it("should track user acceptance status", async function () {
+    // Create an event
+    await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Acceptance Test Event",
+        "Event to test user acceptance tracking",
+        "2024-12-25 09:00:00",
+        "Test Location",
+        18, // minAge
+        5   // minSkill
+      );
+
+    const eventId = 0;
+
+    // Alice attends with sufficient age and skill (should be accepted)
+    const aliceAge = 25;
+    const aliceSkill = 8;
+    const encryptedAliceAge = await fhevm
+      .createEncryptedInput(zumaEventsContractAddress, signers.alice.address)
+      .add64(aliceAge)
+      .encrypt();
+    const encryptedAliceSkill = await fhevm
+      .createEncryptedInput(zumaEventsContractAddress, signers.alice.address)
+      .add64(aliceSkill)
+      .encrypt();
+
+    await zumaEventsContract
+      .connect(signers.alice)
+      .attend(
+        eventId,
+        encryptedAliceAge.handles[0],
+        encryptedAliceAge.inputProof,
+        encryptedAliceSkill.handles[0],
+        encryptedAliceSkill.inputProof
+      );
+
+    // Get Alice's acceptance status
+    const aliceAccepted = await zumaEventsContract.getUserAccepted(eventId, signers.alice.address);
+    
+    // Decrypt the acceptance status
+    // Now Alice should be able to decrypt since FHE.allow was called for her
+    const clearAliceAccepted = await fhevm.userDecryptEbool(
+      aliceAccepted,
+      zumaEventsContractAddress,
+      signers.alice,
+    );
+
+    expect(clearAliceAccepted).to.eq(true);
+  });
+
+  it("should get all events", async function () {
+    // Create multiple events
+    await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Event 1",
+        "First event",
+        "2024-12-25 09:00:00",
+        "Location 1",
+        18, // minAge
+        1   // minSkill
+      );
+
+    await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Event 2",
+        "Second event",
+        "2024-12-26 09:00:00",
+        "Location 2",
+        21, // minAge
+        3   // minSkill
+      );
+
+    // Get all events
+    const allEvents = await zumaEventsContract.getAllEvents();
+    expect(allEvents.length).to.eq(2);
+    expect(allEvents[0].name).to.eq("Event 1");
+    expect(allEvents[1].name).to.eq("Event 2");
+  });
+
+  it("should get owner events", async function () {
+    // Create events with different organizers
+    await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Organizer Event",
+        "Event by organizer",
+        "2024-12-25 09:00:00",
+        "Test Location",
+        18, // minAge
+        1   // minSkill
+      );
+
+    await zumaEventsContract
+      .connect(signers.alice)
+      .createEvent(
+        "Alice Event",
+        "Event by Alice",
+        "2024-12-26 09:00:00",
+        "Test Location",
+        18, // minAge
+        1   // minSkill
+      );
+
+    // Get organizer's events
+    const organizerEvents = await zumaEventsContract.getOwnerEvents(signers.organizer.address);
+    expect(organizerEvents.length).to.eq(1);
+    expect(organizerEvents[0].name).to.eq("Organizer Event");
+
+    // Get Alice's events
+    const aliceEvents = await zumaEventsContract.getOwnerEvents(signers.alice.address);
+    expect(aliceEvents.length).to.eq(1);
+    expect(aliceEvents[0].name).to.eq("Alice Event");
   });
 });
