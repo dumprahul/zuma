@@ -6,6 +6,7 @@ import { useMetaMaskEthersSigner } from "../../hooks/metamask/useMetaMaskEthersS
 import { useZumaEvents } from "../../hooks/useZumaEvents";
 import { errorNotDeployed } from "../../components/ErrorNotDeployed";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function AttendEventPage() {
   const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
@@ -42,6 +43,34 @@ export default function AttendEventPage() {
     sameChain,
     sameSigner,
   });
+
+  // Local state for transaction tracking
+  const [transactionHash, setTransactionHash] = useState<string>("");
+  const [isTransactionPending, setIsTransactionPending] = useState<boolean>(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
+
+  // Listen to message changes to track transaction status
+  useEffect(() => {
+    if (zumaEvents.message) {
+      if (zumaEvents.message.includes("Wait for tx:")) {
+        // Extract transaction hash from message
+        const hashMatch = zumaEvents.message.match(/tx:([a-fA-F0-9]+)/);
+        if (hashMatch) {
+          setTransactionHash(hashMatch[1]);
+          setIsTransactionPending(true);
+        }
+      } else if (zumaEvents.message.includes("Attendance submitted successfully") || 
+                 zumaEvents.message.includes("Attendance submitted but requirements not met")) {
+        setIsTransactionPending(false);
+        setShowSuccessMessage(true);
+        // Hide success message after 8 seconds
+        setTimeout(() => setShowSuccessMessage(false), 8000);
+      } else if (zumaEvents.message.includes("Attendance failed")) {
+        setIsTransactionPending(false);
+        setTransactionHash("");
+      }
+    }
+  }, [zumaEvents.message]);
 
   // Styling classes
   const buttonClass =
@@ -215,11 +244,13 @@ export default function AttendEventPage() {
           <div className="flex justify-center">
             <button
               className={buttonClass + " text-lg px-12 py-4"}
-              disabled={!zumaEvents.canAttend}
+              disabled={!zumaEvents.canAttend || isTransactionPending}
               onClick={zumaEvents.attendEvent}
             >
               {zumaEvents.canAttend
-                ? "Attend Event"
+                ? isTransactionPending
+                  ? "Processing..."
+                  : "Attend Event"
                 : zumaEvents.isAttending
                   ? "Submitting..."
                   : "Fill all required fields"}
@@ -227,50 +258,43 @@ export default function AttendEventPage() {
           </div>
         </div>
 
-        {/* Attendance Result Confirmation */}
-        {zumaEvents.lastAttendanceResult && (
-          <div className={`mt-8 rounded-xl p-6 ${
-            zumaEvents.lastAttendanceResult.accepted 
-              ? 'bg-green-500/20 border-2 border-green-400/30' 
-              : 'bg-yellow-500/20 border-2 border-yellow-400/30'
-          }`}>
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {zumaEvents.lastAttendanceResult.accepted ? (
-                  <svg className="h-8 w-8 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <svg className="h-8 w-8 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
+        {/* Transaction Status Display */}
+        {isTransactionPending && (
+          <div className="mt-8 bg-blue-500/20 border-2 border-blue-400/30 rounded-xl p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-blue-300 mb-2">Transaction in Progress</h3>
+                <p className="text-blue-200 text-sm mb-2">Please wait while your attendance is being processed...</p>
+                {transactionHash && (
+                  <div className="bg-blue-600/30 rounded-lg p-3">
+                    <p className="text-blue-200 text-xs font-mono break-all">
+                      TX Hash: {transactionHash}
+                    </p>
+                  </div>
                 )}
-              </div>
-              <div className="ml-4">
-                <h3 className={`text-lg font-semibold ${
-                  zumaEvents.lastAttendanceResult.accepted 
-                    ? 'text-green-300' 
-                    : 'text-yellow-300'
-                }`}>
-                  {zumaEvents.lastAttendanceResult.accepted 
-                    ? 'Attendance Accepted!' 
-                    : 'Attendance Not Accepted'}
-                </h3>
-                <div className="mt-2 text-sm text-gray-200">
-                  {zumaEvents.lastAttendanceResult.accepted 
-                    ? `You have been successfully registered for Event #${zumaEvents.lastAttendanceResult.eventId}`
-                    : `Your age (${zumaEvents.lastAttendanceResult.age}) or skill (${zumaEvents.lastAttendanceResult.skill}) does not meet the event requirements (must be greater than minimum).`
-                  }
-                </div>
               </div>
             </div>
           </div>
         )}
 
-        
+        {/* Success Message */}
+        {showSuccessMessage && (
+          <div className="mt-8 bg-green-500/20 border-2 border-green-400/30 rounded-xl p-6">
+            <div className="flex items-center justify-center space-x-4">
+              <svg className="h-8 w-8 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-green-300">Event Invite Received Onchain</h3>
+                
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Message Display */}
-        {zumaEvents.message && (
+        {zumaEvents.message && !isTransactionPending && !showSuccessMessage && (
           <div className="mt-8 bg-blue-500/20 border-2 border-blue-400/30 rounded-xl p-4">
             <p className="text-blue-200 text-center font-medium">{zumaEvents.message}</p>
           </div>
