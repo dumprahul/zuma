@@ -1,3 +1,11 @@
+# Zuma FHE based Event Management Dapp
+
+Zuma uses Fully Homomorphic Encryption (FHE) on-chain to manage events with privacy, trust, and verifiable attendance. It ensures data stays encrypted while still enabling event creation, registration, and proof of participation securely.
+
+Zuma is already deployed on the Sepolia testnet at address 0xa439BbabCb49EA18072262ce8bd79a1455361d48.
+
+It uses Zama's FHEVM contracts for FHE encryption at solidity code level and also uses @zama-fhe/relayer-sdk
+
 # FHEVM React Template
 
 The FHEVM React Template is an ultra-minimal React project for building and running an FHEVM-enabled dApp.
@@ -32,6 +40,7 @@ Follow the step-by-step guide in the [Hardhat + MetaMask](https://docs.metamask.
 
 1. Clone this repository.
 2. From the repo root, run:
+
 ```sh
 # - git clone "https://github.com/zama-ai/fhevm-hardhat-template.git" into <root>/packages
 # - npm install
@@ -43,6 +52,7 @@ node ./scripts/install.mjs
 
 1. Clone this repository.
 2. From the repo root, execute the following:
+
 ```sh
 cd ./packages
 git clone "https://github.com/zama-ai/fhevm-hardhat-template.git"
@@ -97,16 +107,17 @@ npm run dev:mock
 3. In your browser open `http://localhost:3000`
 
 4. Open Metamask connect to local Hardhat node
-i. Select Add network.
-ii. Select Add a network manually.
-iii. Enter your Hardhat Network RPC URL, http://127.0.0.1:8545/ (or http://localhost:8545).
-iv. Enter your Hardhat Network chain ID, 31337 (or 0x539 in hexadecimal format).
+   i. Select Add network.
+   ii. Select Add a network manually.
+   iii. Enter your Hardhat Network RPC URL, http://127.0.0.1:8545/ (or http://localhost:8545).
+   iv. Enter your Hardhat Network chain ID, 31337 (or 0x539 in hexadecimal format).
 
 ## How to fix Hardhat Node + Metamask Errors ?
 
 When using MetaMask as a wallet provider with a development node like Hardhat, you may encounter two common types of errors:
 
 ### 1. ⚠️ Nonce Mismatch ❌💥
+
 MetaMask tracks wallet nonces (the number of transactions sent from a wallet). However, if you restart your Hardhat node, the nonce is reset on the dev node, but MetaMask does not update its internal nonce tracking. This discrepancy causes a nonce mismatch error.
 
 ### 2. ⚠️ View Function Call Result Mismatch ❌💥
@@ -136,14 +147,14 @@ By following these steps, you can ensure that MetaMask syncs correctly with your
 
 ### Key Files/Folders
 
-* **`<root>/packages/site/fhevm`**: This folder contains the essential hooks needed to interact with FHEVM-enabled smart contracts. It is meant to be easily copied and integrated into any FHEVM + React project.
+- **`<root>/packages/site/fhevm`**: This folder contains the essential hooks needed to interact with FHEVM-enabled smart contracts. It is meant to be easily copied and integrated into any FHEVM + React project.
 
-* **`<root>/packages/site/hooks/useFHECounter.tsx`**: A simple React custom hook that demonstrates how to use the `useFhevm` hook in a basic use case, serving as an example of integration.
+- **`<root>/packages/site/hooks/useFHECounter.tsx`**: A simple React custom hook that demonstrates how to use the `useFhevm` hook in a basic use case, serving as an example of integration.
 
 ### Secondary Files/Folders
 
-* **`<root>/packages/site/hooks/metamask`**: This folder includes hooks designed to manage the MetaMask Wallet provider. These hooks can be easily adapted or replaced to support other wallet providers, following the EIP-6963 standard,
-* Additionally, the project is designed to be flexible, allowing developers to easily replace `ethers.js` with a more React-friendly library of their choice, such as `Wagmi`.
+- **`<root>/packages/site/hooks/metamask`**: This folder includes hooks designed to manage the MetaMask Wallet provider. These hooks can be easily adapted or replaced to support other wallet providers, following the EIP-6963 standard,
+- Additionally, the project is designed to be flexible, allowing developers to easily replace `ethers.js` with a more React-friendly library of their choice, such as `Wagmi`.
 
 ## Documentation
 
