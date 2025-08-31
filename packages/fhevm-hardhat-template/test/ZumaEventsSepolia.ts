@@ -112,7 +112,7 @@ describe("ZumaEventsSepolia", function () {
     );
     progress(`Clear accepted count: ${clearAcceptedCount}`);
 
-    // Alice should be accepted since age=25 >= 18 and skill=8 >= 5
+    // Alice should be accepted since age=25 > 18 and skill=8 > 5
     expect(clearAcceptedCount).to.eq(1);
   });
 
@@ -214,5 +214,68 @@ describe("ZumaEventsSepolia", function () {
     progress("Verifying event is closed...");
     eventData = await zumaEventsContract.events(2);
     expect(eventData.isOpen).to.eq(false);
+  });
+
+  it("should test user acceptance tracking on Sepolia", async function () {
+    steps = 8;
+
+    this.timeout(3 * 40000);
+
+    progress("Creating event for acceptance test...");
+    const tx = await zumaEventsContract
+      .connect(signers.organizer)
+      .createEvent(
+        "Acceptance Test Sepolia Event",
+        "Event to test user acceptance tracking",
+        "2024-12-25 09:00:00",
+        "Sepolia Test Location",
+        18, // minAge
+        5   // minSkill
+      );
+    await tx.wait();
+
+    const eventId = 3; // Assuming this is the next event ID
+
+    progress("Getting event details...");
+    const eventData = await zumaEventsContract.events(eventId);
+    expect(eventData.isOpen).to.eq(true);
+
+    progress("Encrypting Bob's age (19) and skill (7)...");
+    const bobAge = 19;
+    const bobSkill = 7;
+    const encryptedBobAge = await fhevm
+      .createEncryptedInput(zumaEventsContractAddress, signers.bob.address)
+      .add64(bobAge)
+      .encrypt();
+    const encryptedBobSkill = await fhevm
+      .createEncryptedInput(zumaEventsContractAddress, signers.bob.address)
+      .add64(bobSkill)
+      .encrypt();
+
+    progress("Submitting Bob's attendance...");
+    const attendTx = await zumaEventsContract
+      .connect(signers.bob)
+      .attend(
+        eventId,
+        encryptedBobAge.handles[0],
+        encryptedBobAge.inputProof,
+        encryptedBobSkill.handles[0],
+        encryptedBobSkill.inputProof
+      );
+    await attendTx.wait();
+
+    progress("Getting Bob's acceptance status...");
+    const bobAccepted = await zumaEventsContract.getUserAccepted(eventId, signers.bob.address);
+    expect(bobAccepted).to.not.eq(ethers.ZeroHash);
+
+    progress("Decrypting acceptance status...");
+    const clearBobAccepted = await fhevm.userDecryptEbool(
+      bobAccepted,
+      zumaEventsContractAddress,
+      signers.bob,
+    );
+
+    // Bob should be accepted since age=19 > 18 and skill=7 > 5
+    expect(clearBobAccepted).to.eq(true);
   });
 });
