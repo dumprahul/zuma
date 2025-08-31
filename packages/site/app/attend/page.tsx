@@ -24,8 +24,6 @@ export default function AttendEventPage() {
   // FHEVM instance
   const {
     instance: fhevmInstance,
-    status: fhevmStatus,
-    error: fhevmError,
   } = useFhevm({
     provider,
     chainId,
@@ -78,45 +76,82 @@ export default function AttendEventPage() {
     return errorNotDeployed(chainId);
   }
 
+  const handleEventSelect = (eventId: number) => {
+    zumaEvents.selectEvent(eventId);
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <div className="glass-dark border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-white">Attend Event</h1>
-            <Link 
-              href="/"
-              className="text-blue-300 hover:text-blue-100 font-medium transition-colors"
-            >
-              ← Back to Home
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Breadcrumb */}
-      <div className="glass-dark border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-300 hover:text-white text-sm">
-                  Home
-                </Link>
-              </li>
-              <li className="flex items-center">
-                <svg className="h-4 w-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="text-white text-sm font-medium">Attend Event</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
+      {/* Simple Back Button */}
+      <div className="pt-6 px-4 sm:px-6 lg:px-8">
+        <Link 
+          href="/"
+          className="inline-flex items-center text-blue-300 hover:text-blue-100 font-medium transition-colors"
+        >
+          ← Back to Home
+        </Link>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl font-bold text-white text-center mb-12">Available Events</h1>
+        
+        {/* Event Selection */}
+        <div className="glass-dark rounded-xl p-6 shadow-sm mb-8">
+          <h2 className="font-bold text-white text-2xl mb-6">Select Event to Attend</h2>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-white mb-2">
+              Choose an event:
+            </label>
+            <select
+              className={inputClass}
+              value={zumaEvents.selectedEventId ?? ""}
+              onChange={(e) => handleEventSelect(e.target.value ? parseInt(e.target.value) : 0)}
+            >
+              <option value="">Choose an event...</option>
+              {Array.from({ length: Number(zumaEvents.nextEventId || 0) }, (_, i) => (
+                <option key={i} value={i}>
+                  Event #{i}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Event Details Display */}
+        {zumaEvents.selectedEventData && (
+          <div className="glass-dark rounded-xl p-6 shadow-sm mb-8">
+            <h2 className="font-bold text-white text-2xl mb-6">Event Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-white text-lg mb-3">Event Information:</h3>
+                <div className="space-y-2 text-gray-200">
+                  <p><span className="font-medium">Name:</span> {zumaEvents.selectedEventData.name}</p>
+                  <p><span className="font-medium">Description:</span> {zumaEvents.selectedEventData.description}</p>
+                  <p><span className="font-medium">Date & Time:</span> {zumaEvents.selectedEventData.dateTime}</p>
+                  <p><span className="font-medium">Location:</span> {zumaEvents.selectedEventData.location}</p>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-lg mb-3">Requirements & Status:</h3>
+                <div className="space-y-2 text-gray-200">
+                  <p><span className="font-medium">Minimum Age:</span> {zumaEvents.selectedEventData.minAge}</p>
+                  <p><span className="font-medium">Minimum Skill:</span> {zumaEvents.selectedEventData.minSkill}</p>
+                  <p><span className="font-medium">Status:</span> 
+                    <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
+                      zumaEvents.selectedEventData.isOpen 
+                        ? 'bg-green-500/30 text-green-300 border border-green-400/30' 
+                        : 'bg-red-500/30 text-red-300 border border-red-400/30'
+                    }`}>
+                      {zumaEvents.selectedEventData.isOpen ? 'Open' : 'Closed'}
+                    </span>
+                  </p>
+                  <p><span className="font-medium">Accepted Count:</span> {zumaEvents.selectedEventData.acceptedCount}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Event Attendance Form */}
         <div className={sectionClass}>
           <h2 className={titleClass + " text-white"}>Event Attendance</h2>
@@ -232,26 +267,7 @@ export default function AttendEventPage() {
           </div>
         )}
 
-        {/* Status Information */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className={sectionClass}>
-            <h3 className="font-semibold text-white text-lg mb-4">Contract Status</h3>
-            <div className="space-y-2 text-sm text-gray-200">
-              <p><span className="font-medium">Contract:</span> {zumaEvents.contractAddress ? `${zumaEvents.contractAddress.slice(0, 6)}...${zumaEvents.contractAddress.slice(-4)}` : 'Not deployed'}</p>
-              <p><span className="font-medium">Chain ID:</span> {chainId || 'Unknown'}</p>
-              <p><span className="font-medium">Connected:</span> {isConnected ? 'Yes' : 'No'}</p>
-            </div>
-          </div>
-
-          <div className={sectionClass}>
-            <h3 className="font-semibold text-white text-lg mb-4">FHEVM Status</h3>
-            <div className="space-y-2 text-sm text-gray-200">
-              <p><span className="font-medium">Instance:</span> {fhevmInstance ? 'Ready' : 'Not ready'}</p>
-              <p><span className="font-medium">Status:</span> {fhevmStatus}</p>
-              <p><span className="font-medium">Error:</span> {fhevmError ? (fhevmError instanceof Error ? fhevmError.message : String(fhevmError)) : 'None'}</p>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Message Display */}
         {zumaEvents.message && (
