@@ -107,7 +107,7 @@ export const ZumaEventsDemo = () => {
         <p className="font-semibold text-3xl m-5">
           Zuma Events - FHE Event Management -{" "}
           <span className="font-mono font-normal text-gray-400">
-            ZumaEvents.sol
+            ZumaEvents.sol (Updated)
           </span>
         </p>
       </div>
@@ -412,7 +412,7 @@ export const ZumaEventsDemo = () => {
                  Event &quot;{zumaEvents.lastCreatedEvent.name}&quot; has been successfully registered!
                </p>
               <p className="text-sm text-green-700 mt-1">
-                Event ID: {zumaEvents.lastCreatedEvent.id} | Requirements: Age {zumaEvents.lastCreatedEvent.minAge}+, Skill {zumaEvents.lastCreatedEvent.minSkill}+
+                Event ID: {zumaEvents.lastCreatedEvent.id} | Requirements: Age &gt; {zumaEvents.lastCreatedEvent.minAge}, Skill &gt; {zumaEvents.lastCreatedEvent.minSkill}
               </p>
             </div>
           </div>
@@ -455,7 +455,7 @@ export const ZumaEventsDemo = () => {
               }`}>
                 {zumaEvents.lastAttendanceResult.accepted 
                   ? `You have been successfully registered for Event #${zumaEvents.lastAttendanceResult.eventId}`
-                  : `Your age (${zumaEvents.lastAttendanceResult.age}) or skill (${zumaEvents.lastAttendanceResult.skill}) does not meet the event requirements.`
+                  : `Your age (${zumaEvents.lastAttendanceResult.age}) or skill (${zumaEvents.lastAttendanceResult.skill}) does not meet the event requirements (must be greater than minimum).`
                 }
               </p>
             </div>
