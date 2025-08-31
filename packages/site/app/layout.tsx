@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Zama FHEVM SDK Quickstart",
-  description: "Zama FHEVM SDK Quickstart app",
+  title: "Zuma",
+  description: "Zuma is a event management platform with FHE.",
 };
 
 export default async function RootLayout({
