@@ -10,7 +10,7 @@ It uses Zama's FHEVM contracts for FHE encryption at solidity code level and als
 
 The FHEVM React Template is an ultra-minimal React project for building and running an FHEVM-enabled dApp.
 It works alongside the [fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template)
-and provides a simple development frontend for interacting with the `FHECounter.sol` contract.
+and provides a simple development frontend for interacting with the `Zuma.sol` contract.
 
 This template also illustrates how to run your FHEVM-dApp on both Sepolia as well as a local Hardhat Node (much faster).
 
